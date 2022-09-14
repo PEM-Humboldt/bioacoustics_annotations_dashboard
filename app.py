@@ -20,19 +20,16 @@ st.set_page_config(
 
 st.title("Bioacustics Annotations Dashboard 🎧 🐸 🤖 ")
 
-
 # input 
 
 uploaded_files = st.file_uploader("Updload .txt Audacity Annotations", accept_multiple_files=True)
-file_names = []
 df_all_annotations = pd.DataFrame()
 for uploaded_file in uploaded_files:
     if uploaded_file is not None:
         uploaded_file.seek(0)
         df_annotation = read_audacity_annot(uploaded_file)
         bytes_data = uploaded_file.read()
-        st.write("filename:", uploaded_file.name)
-        file_names.append(uploaded_file.name)
+        df_annotation['fname'] = uploaded_file.name
         df_all_annotations.append(df_annotation)
         st.dataframe(df_annotation)
 
