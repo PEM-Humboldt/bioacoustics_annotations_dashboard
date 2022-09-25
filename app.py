@@ -5,10 +5,9 @@ import time # to simulate a real time data, time loop
 import plotly.express as px # interactive charts 
 
 from maad.util import read_audacity_annot
-
+from utils import preprocessing, examine
 # read csv from a github repo
 df = pd.read_csv("https://raw.githubusercontent.com/Lexie88rus/bank-marketing-analysis/master/bank.csv")
-
 
 st.set_page_config(
     page_title = 'Bioacustics Annotations Dashboard',
@@ -16,13 +15,10 @@ st.set_page_config(
     layout = 'wide'
 )
 
-# dashboard title
-
 st.title("Bioacustics Annotations Dashboard 🎧 🐸 🤖 ")
 
-# input 
-
-uploaded_files = st.file_uploader("Updload .txt Audacity Annotations", accept_multiple_files=True)
+uploaded_files = st.file_uploader("Updload .txt Audacity? Annotations", 
+                                accept_multiple_files=True)
 df_all_annotations = pd.DataFrame()
 for uploaded_file in uploaded_files:
     if uploaded_file is not None:
@@ -30,10 +26,22 @@ for uploaded_file in uploaded_files:
         df_annotation = read_audacity_annot(uploaded_file)
         bytes_data = uploaded_file.read()
         df_annotation['fname'] = uploaded_file.name
-        df_all_annotations.append(df_annotation)
-        st.dataframe(df_annotation)
+        df_all_annotations = df_all_annotations.append(df_annotation,
+                                                    ignore_index=True)
+print(uploaded_files)
 
-st.dataframe(df_all_annotations)
+if len(uploaded_files)>0:
+
+    df_all_annotations_prepro = preprocessing(df_all_annotations)
+    df_all_annotations_error = examine(df_all_annotations_prepro)
+    if df_all_annotations_error.shape[0]>0:
+        st.error('Error in species or quality names. Check selected files:', 
+                    icon="🚨")
+        st.dataframe(df_all_annotations_error)
+    else:
+        st.success('No errors detected', icon="✅")
+
+    st.dataframe(df_all_annotations_prepro)
 
 
 # top-level filters 
@@ -57,20 +65,20 @@ for seconds in range(200):
     df['balance_new'] = df['balance'] * np.random.choice(range(1,5))
 
     # creating KPIs 
-    avg_age = np.mean(df['age_new']) 
+    count_annotations = df_all_annotations.shape[0]
 
-    count_married = int(df[(df["marital"]=='married')]['marital'].count() + np.random.choice(range(1,30)))
+    count_sites = df_all_annotations['age_new']
     
-    balance = np.mean(df['balance_new'])
+    count_labels = len(df_all_annotations['label'].unique())
 
     with placeholder.container():
         # create three columns
         kpi1, kpi2, kpi3 = st.columns(3)
 
         # fill in those three columns with respective metrics or KPIs 
-        kpi1.metric(label="Annotations ⏳", value=round(avg_age), delta= round(avg_age) - 10)
-        kpi2.metric(label="Recorders 🎙️ ", value= int(count_married), delta= - 10 + count_married)
-        kpi3.metric(label="Labels ", value= f"$ {round(balance,2)} ", delta= - round(balance/count_married) * 100)
+        kpi1.metric(label="Annotations ⏳", value=count_annotations )
+        kpi2.metric(label="Recorders 🎙️ ", value= count_married)
+        kpi3.metric(label="Labels ", value=count_labels)
 
         # create two columns for charts 
 
