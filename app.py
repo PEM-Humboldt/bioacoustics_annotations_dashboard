@@ -44,27 +44,42 @@ if len(uploaded_files)>0:
     else:
         st.success('No errors detected', icon="✅")
 
-    st.dataframe(df_prepro)
-
     # creating KPIs 
+    n_files = len(df_prepro['fname'].unique())
     count_annotations = df_prepro.shape[0]
     count_species = len(df_prepro['species'].unique())
     count_labels = len(df_prepro['label'].unique())
+    mean_duration = df_prepro['label_duration'].mean().round(1)
+    period = max(df_prepro['date'])
 
     # creating a single-element container.
     placeholder = st.empty()
 
     with placeholder.container():
         # create three columns
-        kpi1, kpi2, kpi3 = st.columns(3)
+        kpi0, kpi1, kpi2, kpi3, kpi4 = st.columns(5)
 
         # fill in those three columns with respective metrics or KPIs 
+        kpi0.metric(label="Files ", value=n_files)
         kpi1.metric(label="Annotations 🎧", value=count_annotations )
         kpi2.metric(label="Species 🐸 ", value= count_species)
         kpi3.metric(label="Labels ", value=count_labels)
+        kpi4.metric(label="Mean duration ", value=round(mean_duration))
+        # Main figure
 
+        fig0 = px.parallel_categories(df_prepro,
+                                    dimensions=['site','species','quality'], 
+                                    color='label_duration_int',
+                                    labels={'site':'Site', 'species':'Species', 'quality':'Quality'},
+                                    color_continuous_scale=px.colors.diverging.Tealrose,
+                                    ) 
+                                    # check more colors here https://plotly.com/python/builtin-colorscales/ 
+        fig0.update_layout(
+                autosize=False,
+                width=1700,
+                height=500)            
+        st.plotly_chart(fig0)
         # create two columns for charts 
-
         fig_col1, fig_col2 = st.columns(2)
         with fig_col1:
             st.markdown("### Frequency of species")
@@ -79,9 +94,69 @@ if len(uploaded_files)>0:
             df_count_quality.columns = ['Quality','Frequency']
             fig2 = px.pie(df_count_quality, values='Frequency', names='Quality')
             st.write(fig2)
-        st.markdown("### Detailed Data View")
-        st.dataframe(df)
-        time.sleep(1)
+        #st.markdown("### Detailed Data View")
+        with fig_col1:
+            st.markdown("### Duration per species ")
+            fig3 = fig = px.histogram(df_prepro, x="label_duration",color='species')
+            st.write(fig3)
+        with fig_col2:
+            st.markdown("### Duration per species probability ")
+            fig4 = fig = px.histogram(df_prepro, x="label_duration",color='species',
+            histnorm='probability')
+            st.write(fig4)
+
+        df_count_date= df_prepro['date'].value_counts().to_frame().reset_index()
+        df_count_date.columns = ['Date','Frequency']
+
+        fig3 = px.scatter(df_count_date, x='Date', y="Frequency",)
+        st.plotly_chart(fig3)
+
+        df_count_date = df_prepro.groupby(['date','species','quality'])['label_duration'].count().to_frame().reset_index()
+
+        fig3 = px.scatter(df_count_date, x='date', y="label_duration",color='species', symbol="quality")
+        st.plotly_chart(fig3)
+
+
+        st.markdown("### Species frequency per hour")
+
+        df_hour = df_prepro.groupby(['species',
+                                    'hour'])['label_duration'].sum().to_frame().reset_index()
+        df_polar = pd.DataFrame({'hour':list(range(0,24))*count_species,
+                                'species':sorted(list(df_prepro['species'].unique())*24)})
+        df_polar = pd.merge(df_polar, df_hour, on=['hour','species'],how='left').fillna(0)
+        df_polar['hour'] = df_polar['hour'].astype(str)
+        fig3 = px.bar_polar(df_polar, theta='hour', r='label_duration', color='species',
+                            template="plotly_dark")
+        st.plotly_chart(fig3)
+
+        fig3 = px.line_polar(df_polar, theta='hour', r='label_duration', color='species',
+                            template="plotly_dark", line_close=True)
+        fig3.update_traces(fill='toself')        
+        st.plotly_chart(fig3)
+
+        st.markdown("### Duration of annotations")
+
+        df_tunnel = df_prepro.groupby(['quality',
+                                        'species'])['label_duration'].sum().reset_index(
+                                        ).sort_values(by=['label_duration'],
+                                                    ascending=False)
+
+        df_tunnel['label_duration'] = df_tunnel['label_duration'].round()                                            
+        
+        fig = px.funnel(df_tunnel, x='label_duration', y='species', color='quality')
+        st.plotly_chart(fig)
+
+        
+
+        df_tunnel = df_prepro.groupby(['quality',
+                                        'species'])['label_duration'].count().reset_index(
+                                        ).sort_values(by=['label_duration'],
+                                                    ascending=False)
+        
+        st.markdown("### Count of annotations")
+
+        fig = px.funnel(df_tunnel, x='label_duration', y='species', color='quality')
+        st.plotly_chart(fig)
+
+        st.dataframe(df_prepro)
     #placeholder.empty()
-
-

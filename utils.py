@@ -22,8 +22,10 @@ def preprocessing(df_annotations):
     df[['site','date']] = df['fname'].str.split('_',1,expand=True)
     df['date'] = df['date'].str.split('_').apply(lambda x: x[0]+x[1])
     df['date'] = pd.to_datetime(df['date'])
+    df['hour'] = df['date'].dt.hour
     df[['species','quality']] = df['label'].str.split('_',expand=True)
     df['label_duration'] = df['max_t'] - df['min_t']
+    df['label_duration_int'] = round(df['label_duration'])
     df = df.sort_values(by=['site','date','min_t','max_t'],ignore_index=True)
     df_annotations_prepro = df.copy()
 
@@ -49,8 +51,7 @@ def examine(df_annotations):
     list_of_species = list(df_species['Code'].unique())
     list_of_quality = list(df_quality['code'].unique())
     list_of_quality = [i[1:] for i in list_of_quality]
-    print(list_of_quality)
-    print(list_of_species)
+
     df = df_annotations.copy() 
     df = df[(~df['quality'].isin(list_of_quality))|(~df['species'].isin(list_of_species))]
     df_annotations_errors = df.copy()
