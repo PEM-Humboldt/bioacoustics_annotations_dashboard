@@ -28,28 +28,23 @@ for uploaded_file in uploaded_files:
         df_annotation = read_audacity_annot(uploaded_file)
         bytes_data = uploaded_file.read()
         df_annotation['fname'] = uploaded_file.name
-        df = df.append(df_annotation,
-                                                    ignore_index=True)
-print(uploaded_files)
+        df = df.append(df_annotation, ignore_index=True)
 
 if len(uploaded_files)>0:
 
     df_prepro = preprocessing(df)
     
     df_error = examine(df_prepro)
-    print(df_error.shape)
+
     if df_error.shape[0]>0:
         st.error('Error in species or quality names. Check selected files:', 
                     icon="🚨")
         st.dataframe(df_error)
-        print(df_prepro.shape)
         df_prepro = df_prepro[~df_prepro.index.isin(df_error.index)] 
-        print(df_prepro.shape)
     else:
         st.success('No errors detected', icon="✅")
 
     st.dataframe(df_prepro)
-    print(df_prepro.shape)
 
     # creating KPIs 
     count_annotations = df_prepro.shape[0]
@@ -72,12 +67,17 @@ if len(uploaded_files)>0:
 
         fig_col1, fig_col2 = st.columns(2)
         with fig_col1:
-            st.markdown("### First Chart")
-            fig = px.density_heatmap(data_frame=df, y = 'age_new', x = 'marital')
+            st.markdown("### Frequency of species")
+            #fig = px.density_heatmap(data_frame=df, y = 'age_new', x = 'marital')
+            df_count_species = df_prepro['species'].value_counts().to_frame().reset_index()
+            df_count_species.columns = ['Species','Frequency']
+            fig = px.pie(df_count_species, values='Frequency', names='Species')
             st.write(fig)
         with fig_col2:
-            st.markdown("### Second Chart")
-            fig2 = px.histogram(data_frame = df, x = 'age_new')
+            st.markdown("### Frequency of quality ")
+            df_count_quality = df_prepro['quality'].value_counts().to_frame().reset_index()
+            df_count_quality.columns = ['Quality','Frequency']
+            fig2 = px.pie(df_count_quality, values='Frequency', names='Quality')
             st.write(fig2)
         st.markdown("### Detailed Data View")
         st.dataframe(df)
