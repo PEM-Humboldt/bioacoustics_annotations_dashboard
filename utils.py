@@ -43,12 +43,18 @@ def examine(df_annotations):
     df_annotations_prepro : pandas.core.frame.DataFrame
         Dataframe preprocessed, ready for analyzing
     """
+    df_species = pd.read_excel('Species_code_Annotations.xlsx', sheet_name='Species_code')
+    df_quality = pd.read_excel('Species_code_Annotations.xlsx', sheet_name='Quality_code')
     
-    list_of_species = ['BOAFAB', 'PHYCUV']
-    list_of_quality = ['F','M','C']
+    list_of_species = list(df_species['Code'].unique())
+    list_of_quality = list(df_quality['code'].unique())
+    list_of_quality = [i[1:] for i in list_of_quality]
+    print(list_of_quality)
+    print(list_of_species)
     df = df_annotations.copy() 
     df = df[(~df['quality'].isin(list_of_quality))|(~df['species'].isin(list_of_species))]
     df_annotations_errors = df.copy()
+    
     return df_annotations_errors
 
 

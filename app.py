@@ -7,7 +7,9 @@ import plotly.express as px # interactive charts
 from maad.util import read_audacity_annot
 from utils import preprocessing, examine
 # read csv from a github repo
-df = pd.read_csv("https://raw.githubusercontent.com/Lexie88rus/bank-marketing-analysis/master/bank.csv")
+
+# Planilha
+# df = pd.read_csv("https://raw.githubusercontent.com/Lexie88rus/bank-marketing-analysis/master/bank.csv")
 
 st.set_page_config(
     page_title = 'Bioacustics Annotations Dashboard',
@@ -19,65 +21,51 @@ st.title("Bioacustics Annotations Dashboard 🎧 🐸 🤖 ")
 
 uploaded_files = st.file_uploader("Updload .txt Audacity? Annotations", 
                                 accept_multiple_files=True)
-df_all_annotations = pd.DataFrame()
+df = pd.DataFrame()
 for uploaded_file in uploaded_files:
     if uploaded_file is not None:
         uploaded_file.seek(0)
         df_annotation = read_audacity_annot(uploaded_file)
         bytes_data = uploaded_file.read()
         df_annotation['fname'] = uploaded_file.name
-        df_all_annotations = df_all_annotations.append(df_annotation,
+        df = df.append(df_annotation,
                                                     ignore_index=True)
 print(uploaded_files)
 
 if len(uploaded_files)>0:
 
-    df_all_annotations_prepro = preprocessing(df_all_annotations)
-    df_all_annotations_error = examine(df_all_annotations_prepro)
-    if df_all_annotations_error.shape[0]>0:
+    df_prepro = preprocessing(df)
+    
+    df_error = examine(df_prepro)
+    print(df_error.shape)
+    if df_error.shape[0]>0:
         st.error('Error in species or quality names. Check selected files:', 
                     icon="🚨")
-        st.dataframe(df_all_annotations_error)
+        st.dataframe(df_error)
+        print(df_prepro.shape)
+        df_prepro = df_prepro[~df_prepro.index.isin(df_error.index)] 
+        print(df_prepro.shape)
     else:
         st.success('No errors detected', icon="✅")
 
-    st.dataframe(df_all_annotations_prepro)
-
-
-# top-level filters 
-
-job_filter = st.selectbox("Select the Job", pd.unique(df['job']))
-
-
-# creating a single-element container.
-placeholder = st.empty()
-
-# dataframe filter 
-
-df = df[df['job']==job_filter]
-
-# near real-time / live feed simulation 
-
-for seconds in range(200):
-#while True: 
-    
-    df['age_new'] = df['age'] * np.random.choice(range(1,5))
-    df['balance_new'] = df['balance'] * np.random.choice(range(1,5))
+    st.dataframe(df_prepro)
+    print(df_prepro.shape)
 
     # creating KPIs 
-    count_annotations = df_all_annotations.shape[0]
+    count_annotations = df_prepro.shape[0]
+    count_species = len(df_prepro['species'].unique())
+    count_labels = len(df_prepro['label'].unique())
 
-    count_sites = df_all_annotations['age_new']
-    
-    count_labels = len(df_all_annotations['label'].unique())
+    # creating a single-element container.
+    placeholder = st.empty()
 
     with placeholder.container():
         # create three columns
         kpi1, kpi2, kpi3 = st.columns(3)
 
         # fill in those three columns with respective metrics or KPIs 
-        kpi1.metric(label="Annotations ⏳", value=count_annotations )
-        kpi2.metric(label="Recorders 🎙️ ", value= count_married)
+        kpi1.metric(label="Annotations 🎧", value=count_annotations )
+        kpi2.metric(label="Species 🐸 ", value= count_species)
         kpi3.metric(label="Labels ", value=count_labels)
 
         # create two columns for charts 
