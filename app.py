@@ -36,7 +36,6 @@ with fig_col2:
     df_quality = df_quality[['Name','Signal quality']]
     st.dataframe(df_quality)
 
-
 df = pd.DataFrame()
 for uploaded_file in uploaded_files:
     if uploaded_file is not None:
@@ -67,6 +66,8 @@ if len(uploaded_files)>0:
     count_labels = len(df_prepro['label'].unique())
     mean_duration = df_prepro['label_duration'].mean().round(2)
     period = max(df_prepro['date'])
+
+    print(df_prepro['label'].unique())
 
     # creating a single-element container.
     placeholder = st.empty()
@@ -175,6 +176,15 @@ if len(uploaded_files)>0:
         fig = px.funnel(df_tunnel, x='label_duration', y='species', color='quality')
         st.plotly_chart(fig)
 
+
+        df_count_label = df_prepro.groupby(['site','label'])['label_duration'].count(
+                                    ).reset_index().sort_values(by=['label_duration'], ascending=True)
+        df_count_label.columns = ['Site','Label','Frequency']
+
+        fig = px.bar(df_count_label, x='Frequency', y='Label', color='Site',  
+                    orientation='h',text_auto='.2s',)
+        st.plotly_chart(fig)
+
         st.dataframe(df_prepro)
 
         csv = df_prepro.to_csv(index=False).encode('utf-8')
@@ -185,5 +195,7 @@ if len(uploaded_files)>0:
             file_name='annotations.csv',
             mime='text/csv',
         )
+
+
 
     #placeholder.empty()

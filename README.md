@@ -19,7 +19,7 @@ Fast and way to check the consistency of used codes for annotation
 git clone https://github.com/jscanass/annotations_eda_dashboard.git
 ```
 
-2. Install requirements or environment. Use a [virtual environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) to avoid tampering other Python installations in your system. BADASH 🐸 works with Python versions 3.7.
+2. Use a [virtual environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) to avoid tampering other Python installations in your system. BADASH 🐸 works with Python versions 3.7. Install requirements and environment:
 
 ```shell
 conda create --name badash_env python=3.7
@@ -39,7 +39,7 @@ streamlit run app.py
 
 Feel free to modify the code of BADASH 🐸
 
-### 2. Annotations:
+### 2. Annotations
 
 Follow the same format for annotations in your project as [examples](https://github.com/juansulloa/soundclim_annotations/tree/master/bounding_boxes/INCT41). The name of each file follow this structure: {SITE}_{DATE}.txt
 
@@ -52,4 +52,4 @@ Modify the species and quality dictionary following the same structure of the Sp
 * Juan Sebastián Cañas - [jscanass](https://github.com/jscanass)
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
