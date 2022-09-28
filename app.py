@@ -1,26 +1,42 @@
-import streamlit as st # web development
-import numpy as np # np mean, np random 
-import pandas as pd # read csv, df manipulation
-import time # to simulate a real time data, time loop 
+import streamlit as st 
+import pandas as pd 
 import plotly.express as px # interactive charts 
 
 from maad.util import read_audacity_annot
 from utils import preprocessing, examine
 # read csv from a github repo
 
-# Planilha
+# Planilha ??
 # df = pd.read_csv("https://raw.githubusercontent.com/Lexie88rus/bank-marketing-analysis/master/bank.csv")
 
 st.set_page_config(
-    page_title = 'Bioacustics Annotations Dashboard',
+    page_title = 'Badash',
     page_icon = '🐸',
     layout = 'wide'
 )
 
 st.title("Bioacustics Annotations Dashboard 🎧 🐸 🤖 ")
 
-uploaded_files = st.file_uploader("Updload .txt Audacity? Annotations", 
+uploaded_files = st.file_uploader("Upload .txt Audacity Annotations", 
                                 accept_multiple_files=True)
+st.info("""Check annotations examples in this 
+        [link](https://github.com/juansulloa/soundclim_annotations/tree/master/bounding_boxes/INCT41) 👈. 
+        For more information check the [repository](https://github.com/jscanass/annotations_eda_dashboard)""")
+
+fig_col1, fig_col2 = st.columns(2)
+with fig_col1:
+    st.markdown("### Species in Dictionary")
+    #fig = px.density_heatmap(data_frame=df, y = 'age_new', x = 'marital')
+    df_species = pd.read_excel('Species_code_Annotations.xlsx', sheet_name='Species_code')
+    df_species = df_species[['Specie','Code']]
+    st.dataframe(df_species)
+with fig_col2:
+    st.markdown("### Quality in Dictionary ")
+    df_quality = pd.read_excel('Species_code_Annotations.xlsx', sheet_name='Quality_code')  
+    df_quality = df_quality[['Name','Signal quality']]
+    st.dataframe(df_quality)
+
+
 df = pd.DataFrame()
 for uploaded_file in uploaded_files:
     if uploaded_file is not None:
@@ -49,7 +65,7 @@ if len(uploaded_files)>0:
     count_annotations = df_prepro.shape[0]
     count_species = len(df_prepro['species'].unique())
     count_labels = len(df_prepro['label'].unique())
-    mean_duration = df_prepro['label_duration'].mean().round(1)
+    mean_duration = df_prepro['label_duration'].mean().round(2)
     period = max(df_prepro['date'])
 
     # creating a single-element container.
@@ -60,11 +76,11 @@ if len(uploaded_files)>0:
         kpi0, kpi1, kpi2, kpi3, kpi4 = st.columns(5)
 
         # fill in those three columns with respective metrics or KPIs 
-        kpi0.metric(label="Files ", value=n_files)
+        kpi0.metric(label="Files 📁", value=n_files)
         kpi1.metric(label="Annotations 🎧", value=count_annotations )
         kpi2.metric(label="Species 🐸 ", value= count_species)
-        kpi3.metric(label="Labels ", value=count_labels)
-        kpi4.metric(label="Mean duration ", value=round(mean_duration))
+        kpi3.metric(label="Labels 🏷", value=count_labels)
+        kpi4.metric(label="Mean duration ⏲", value=round(mean_duration))
         # Main figure
 
         fig0 = px.parallel_categories(df_prepro,
@@ -113,7 +129,8 @@ if len(uploaded_files)>0:
 
         df_count_date = df_prepro.groupby(['date','species','quality'])['label_duration'].count().to_frame().reset_index()
 
-        fig3 = px.scatter(df_count_date, x='date', y="label_duration",color='species', symbol="quality")
+        fig3 = px.scatter(df_count_date, x='date', y="label_duration", # size='',
+                            color='species', symbol="species")
         st.plotly_chart(fig3)
 
 
@@ -159,4 +176,14 @@ if len(uploaded_files)>0:
         st.plotly_chart(fig)
 
         st.dataframe(df_prepro)
+
+        csv = df_prepro.to_csv(index=False).encode('utf-8')
+
+        st.download_button(
+            label="Download data as CSV",
+            data=csv,
+            file_name='annotations.csv',
+            mime='text/csv',
+        )
+
     #placeholder.empty()
