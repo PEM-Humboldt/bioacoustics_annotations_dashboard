@@ -1,4 +1,4 @@
-# Bioacustics Annotations Dashboard (BADASH) 🐸
+# Bioacustics Annotations Dashboard (BADASH 🐸)
 
 BADASH is a streamlit app for visulization of bounding box annotations. (Explain what is annotations in Bioacustics and add protocol) Exploratory Data Analysis
 Fast and way to check the consistency of used codes for annotation
@@ -9,7 +9,7 @@ Fast and way to check the consistency of used codes for annotation
 
 2. Upload a set of annotations. You can use [these](https://github.com/juansulloa/soundclim_annotations/tree/master/bounding_boxes/INCT41) annotations to play with BADASH 🐸. 
 
-## How to use BADASH in my project?
+## How to use BADASH 🐸 in my project?
 
 ### 1. Installing and Running
 
@@ -49,7 +49,7 @@ Modify the species and quality dictionary following the same structure of the Sp
 
 ## Authors and contributors
 
-* Juan Sebastián Cañas - [jscanass](https://github.com/erikasv)
+* Juan Sebastián Cañas - [jscanass](https://github.com/jscanass)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
