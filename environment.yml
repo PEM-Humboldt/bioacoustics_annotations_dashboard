@@ -1,4 +1,4 @@
-name: dashboard_env
+name: badash_env
 channels:
   - anaconda
   - https://conda.anaconda.org/probcomp
