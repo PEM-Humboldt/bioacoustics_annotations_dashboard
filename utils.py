@@ -24,6 +24,7 @@ def preprocessing(df_annotations):
     df['date'] = pd.to_datetime(df['date'])
     df['hour'] = df['date'].dt.hour
     df[['species','quality']] = df['label'].str.split('_',expand=True)
+    df['quality'] = df['quality'].replace({'FAR':'F','MED':'M','CLR':'C'})
     df['label_duration'] = df['max_t'] - df['min_t']
     df['label_duration_int'] = round(df['label_duration'])
     df = df.sort_values(by=['site','date','min_t','max_t'],ignore_index=True)
@@ -34,7 +35,7 @@ def preprocessing(df_annotations):
 def examine(df_annotations):
 
     """
-    Preprocess annotations from a pandas DataFrame
+    Check errors in annotations given dictionary of species and quality
     
     Parameters
     ----------
@@ -49,7 +50,7 @@ def examine(df_annotations):
     df_quality = pd.read_excel('Species_code_Annotations.xlsx', sheet_name='Quality_code')
     
     list_of_species = list(df_species['Code'].unique())
-    list_of_quality = list(df_quality['code'].unique())
+    list_of_quality = list(df_quality['Code'].unique())
     list_of_quality = [i[1:] for i in list_of_quality]
 
     df = df_annotations.copy() 
@@ -57,8 +58,3 @@ def examine(df_annotations):
     df_annotations_errors = df.copy()
     
     return df_annotations_errors
-
-
-    # Fix files ? 
-    #df['label'] = df['label'].replace({'BPAFAB':'BOAFAB','PHUCUV':'PHYCUV'})
-    #df['quality'] = df['quality'].replace({'FAR':'F','MED':'M','CLR':'C'})
