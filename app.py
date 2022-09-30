@@ -65,7 +65,7 @@ if len(uploaded_files)>0:
     count_species = len(df_prepro['species'].unique())
     count_labels = len(df_prepro['label'].unique())
     mean_duration = df_prepro['label_duration'].mean().round(2)
-    period = max(df_prepro['date'])
+    acoustic_activity = round((100*df_prepro['label_duration'].sum())/(60*n_files))
 
     print(df_prepro['label'].unique())
 
@@ -81,7 +81,7 @@ if len(uploaded_files)>0:
         kpi1.metric(label="Annotations 🎧", value=count_annotations )
         kpi2.metric(label="Species 🐸 ", value= count_species)
         kpi3.metric(label="Labels 🏷", value=count_labels)
-        kpi4.metric(label="Mean duration ⏲", value=round(mean_duration))
+        kpi4.metric(label="Acoustic Activity(%) 🔊", value=acoustic_activity)
         # Main figure
 
         fig0 = px.parallel_categories(df_prepro,
@@ -133,6 +133,34 @@ if len(uploaded_files)>0:
         fig3 = px.scatter(df_count_date, x='date', y="label_duration", # size='',
                             color='species', symbol="species")
         st.plotly_chart(fig3)
+
+        df_count_date = df_prepro.groupby(['date','species','quality'])['label_duration'].sum().to_frame().reset_index()
+
+        fig3 = px.scatter(df_count_date, x='date', y="label_duration", # size='',
+                            color='species', symbol="species")
+        st.plotly_chart(fig3)
+
+        fig = px.area(df_count_date, x="date", y="label_duration", color="species", #line_group="country"
+                        )
+        st.plotly_chart(fig)
+
+        search_space = {'date':[60]*len(df_count_date['date'].unique()),
+                        'label_duration':list(df_count_date['date'].unique())}
+
+        df_date = pd.DataFrame(search_space)
+        df_date['species'] = 'Search space'
+
+        st.dataframe(df_date)
+        st.dataframe(df_count_date)
+
+        #df_count_date = pd.merge(df_count_date,df_date, on='date', how='left')
+
+        #fig = px.area(df_count_date, x="date", y="label_duration", color="species", #line_group="country"
+        #                )
+        #st.plotly_chart(fig)
+
+
+
 
 
         st.markdown("### Species frequency per hour")
