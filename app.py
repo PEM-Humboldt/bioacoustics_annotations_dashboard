@@ -1,10 +1,10 @@
-import streamlit as st 
 import pandas as pd 
-import plotly.express as px # interactive charts 
+import plotly.express as px 
+import streamlit as st 
 
 from maad.util import read_audacity_annot
+
 from utils import preprocessing, examine
-# read csv from a github repo
 
 # Planilha ??
 # df = pd.read_csv("https://raw.githubusercontent.com/Lexie88rus/bank-marketing-analysis/master/bank.csv")
