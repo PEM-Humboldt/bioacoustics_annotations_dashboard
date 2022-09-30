@@ -16,20 +16,16 @@ Fast and way to check the consistency of used codes for annotation
 
 1. Clone this repo in your computer:
 ```shell
-git clone https://github.com/jscanass/annotations_eda_dashboard.git
+git clone https://github.com/jscanass/cd bioacoustics_annotations_dashboard.git
 ```
 
 2. Use a [virtual environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) to avoid tampering other Python installations in your system. BADASH 🐸 works with Python versions 3.7. Install requirements and environment:
 
 ```shell
+cd bioacoustics_annotations_dashboard
 conda create --name badash_env python=3.7
 conda activate badash_env
 pip install -r requirements.txt
-```
-OR:
-```shell
-conda env create -f environment.yml
-conda activate badash_env
 ```
 
 3. Run streamlit app:
