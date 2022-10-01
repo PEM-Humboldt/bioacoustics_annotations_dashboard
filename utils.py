@@ -18,12 +18,12 @@ def preprocessing(df_annotations):
     df = df_annotations.copy()
     #df['min_t'] = np.floor(df['min_t'])
     #df['max_t'] = np.ceil(df['max_t'])
-    df['fname'] = df['fname'].str.split('.').str[0]
-    df[['site','date']] = df['fname'].str.split('_',1,expand=True)
+    df['fname'] = df['fname'].str.split(pat='.').str[0]
+    df[['site','date']] = df['fname'].str.split(pat='_',n=1,expand=True)
     df['date'] = df['date'].str.split('_').apply(lambda x: x[0]+x[1])
     df['date'] = pd.to_datetime(df['date'])
     df['hour'] = df['date'].dt.hour
-    df[['species','quality']] = df['label'].str.split('_',expand=True)
+    df[['species','quality']] = df['label'].str.split(pat='_',expand=True)
     df['quality'] = df['quality'].replace({'FAR':'F','MED':'M','CLR':'C'})
     df['label_duration'] = df['max_t'] - df['min_t']
     df['label_duration_int'] = round(df['label_duration'])
