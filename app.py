@@ -43,7 +43,7 @@ for uploaded_file in uploaded_files:
         df_annotation = read_audacity_annot(uploaded_file)
         bytes_data = uploaded_file.read()
         df_annotation['fname'] = uploaded_file.name
-        df = df.append(df_annotation, ignore_index=True)
+        df = pd.concat([df, df_annotation],ignore_index=True)
 
 if len(uploaded_files)>0:
 
@@ -67,8 +67,6 @@ if len(uploaded_files)>0:
     mean_duration = df_prepro['label_duration'].mean().round(2)
     acoustic_activity = round((100*df_prepro['label_duration'].sum())/(60*n_files))
 
-    print(df_prepro['label'].unique())
-
     # creating a single-element container.
     placeholder = st.empty()
 
@@ -84,18 +82,7 @@ if len(uploaded_files)>0:
         kpi4.metric(label="Acoustic Activity(%) 🔊", value=acoustic_activity)
         # Main figure
 
-        fig0 = px.parallel_categories(df_prepro,
-                                    dimensions=['site','species','quality'], 
-                                    color='label_duration_int',
-                                    labels={'site':'Site', 'species':'Species', 'quality':'Quality'},
-                                    color_continuous_scale=px.colors.diverging.Tealrose,
-                                    ) 
-                                    # check more colors here https://plotly.com/python/builtin-colorscales/ 
-        fig0.update_layout(
-                autosize=False,
-                width=1700,
-                height=500)            
-        st.plotly_chart(fig0)
+        
         # create two columns for charts 
         fig_col1, fig_col2 = st.columns(2)
         with fig_col1:
@@ -160,9 +147,6 @@ if len(uploaded_files)>0:
         #st.plotly_chart(fig)
 
 
-
-
-
         st.markdown("### Species frequency per hour")
 
         df_hour = df_prepro.groupby(['species',
@@ -212,6 +196,16 @@ if len(uploaded_files)>0:
         fig = px.bar(df_count_label, x='Frequency', y='Label', color='Site',  
                     orientation='h',text_auto='.2s',)
         st.plotly_chart(fig)
+
+        fig0 = px.parallel_categories(df_prepro,
+                                    dimensions=['site','species','quality'], 
+                                    color='label_duration_int',
+                                    labels={'site':'Site', 'species':'Species', 'quality':'Quality'},
+                                    color_continuous_scale=px.colors.diverging.Tealrose,
+                                    ) 
+                                    # check more colors here https://plotly.com/python/builtin-colorscales/       
+        st.plotly_chart(fig0)
+
 
         st.dataframe(df_prepro)
 
