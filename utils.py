@@ -46,8 +46,8 @@ def examine(df_annotations):
     df_annotations_prepro : pandas.core.frame.DataFrame
         Dataframe preprocessed, ready for analyzing
     """
-    df_species = pd.read_excel('Species_code_Annotations.xlsx', sheet_name='Species_code')
-    df_quality = pd.read_excel('Species_code_Annotations.xlsx', sheet_name='Quality_code')
+    df_species = pd.read_csv('species_code.csv')
+    df_quality = pd.read_csv('quality_code.csv')
     
     list_of_species = list(df_species['Code'].unique())
     list_of_quality = list(df_quality['Code'].unique())

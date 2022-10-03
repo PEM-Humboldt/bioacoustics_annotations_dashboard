@@ -27,12 +27,12 @@ fig_col1, fig_col2 = st.columns(2)
 with fig_col1:
     st.markdown("### Species in Dictionary")
     #fig = px.density_heatmap(data_frame=df, y = 'age_new', x = 'marital')
-    df_species = pd.read_excel('Species_code_Annotations.xlsx', sheet_name='Species_code')
+    df_species = pd.read_csv('species_code.csv')
     df_species = df_species[['Specie','Code']]
     st.dataframe(df_species)
 with fig_col2:
     st.markdown("### Quality in Dictionary ")
-    df_quality = pd.read_excel('Species_code_Annotations.xlsx', sheet_name='Quality_code')  
+    df_quality = pd.read_csv('quality_code.csv')
     df_quality = df_quality[['Name','Signal quality']]
     st.dataframe(df_quality)
 
