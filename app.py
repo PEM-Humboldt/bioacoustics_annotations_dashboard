@@ -27,12 +27,12 @@ fig_col1, fig_col2 = st.columns(2)
 with fig_col1:
     st.markdown("### Species in Dictionary")
     #fig = px.density_heatmap(data_frame=df, y = 'age_new', x = 'marital')
-    df_species = pd.read_csv('species_code.csv')
+    df_species = pd.read_csv('species_code.csv',sep=';')
     df_species = df_species[['Specie','Code']]
     st.dataframe(df_species)
 with fig_col2:
     st.markdown("### Quality in Dictionary ")
-    df_quality = pd.read_csv('quality_code.csv')
+    df_quality = pd.read_csv('quality_code.csv',sep=';')
     df_quality = df_quality[['Name','Signal quality']]
     st.dataframe(df_quality)
 
@@ -46,8 +46,8 @@ for uploaded_file in uploaded_files:
         df = pd.concat([df, df_annotation],ignore_index=True)
 
 if len(uploaded_files)>0:
-
     df_prepro = preprocessing(df)
+    st.dataframe(df_prepro)
     
     df_error = examine(df_prepro)
 
@@ -56,9 +56,11 @@ if len(uploaded_files)>0:
                     icon="🚨")
         st.dataframe(df_error)
         df_prepro = df_prepro[~df_prepro.index.isin(df_error.index)] 
+        print(df_prepro.shape)
     else:
         st.success('No errors detected', icon="✅")
 
+    st.dataframe(df_prepro)
     # creating KPIs 
     n_files = len(df_prepro['fname'].unique())
     count_annotations = df_prepro.shape[0]
