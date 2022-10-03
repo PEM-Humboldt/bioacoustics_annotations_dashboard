@@ -46,8 +46,8 @@ for uploaded_file in uploaded_files:
         df = pd.concat([df, df_annotation],ignore_index=True)
 
 if len(uploaded_files)>0:
+    
     df_prepro = preprocessing(df)
-    st.dataframe(df_prepro)
     
     df_error = examine(df_prepro)
 
@@ -56,11 +56,9 @@ if len(uploaded_files)>0:
                     icon="🚨")
         st.dataframe(df_error)
         df_prepro = df_prepro[~df_prepro.index.isin(df_error.index)] 
-        print(df_prepro.shape)
     else:
         st.success('No errors detected', icon="✅")
 
-    st.dataframe(df_prepro)
     # creating KPIs 
     n_files = len(df_prepro['fname'].unique())
     count_annotations = df_prepro.shape[0]
@@ -84,126 +82,94 @@ if len(uploaded_files)>0:
     # create two columns for charts 
     fig_col1, fig_col2 = st.columns(2)
     with fig_col1:
-        st.markdown("### Frequency of species")
+        st.markdown("### Duration of species")
         #fig = px.density_heatmap(data_frame=df, y = 'age_new', x = 'marital')
         df_count_species = df_prepro['species'].value_counts().to_frame().reset_index()
-        df_count_species.columns = ['Species','Frequency']
-        fig = px.pie(df_count_species, values='Frequency', names='Species')
+        df_count_species.columns = ['Species','Count']
+
+        df_count_species = df_prepro.groupby(['site','species'])['label_duration'].count(
+                                ).reset_index().sort_values(by=['label_duration'], ascending=True)
+        df_count_species.columns = ['Site','Species','Duration']
+        df_count_species['Percentage'] = round(100*df_count_species['Duration']/df_count_species['Duration'].sum(),1)
+        df_count_species['Percentage'] = df_count_species['Percentage'].apply(lambda x: str(x)+'%')
+        fig = px.bar(df_count_species, x='Duration', y='Species', color='Site',  
+                    orientation='h',text='Percentage',)
         st.write(fig)
-    with fig_col2:
-        st.markdown("### Frequency of quality ")
-        df_count_quality = df_prepro['quality'].value_counts().to_frame().reset_index()
-        df_count_quality.columns = ['Quality','Frequency']
-        fig2 = px.pie(df_count_quality, values='Frequency', names='Quality')
-        st.write(fig2)
-    #st.markdown("### Detailed Data View")
-    with fig_col1:
+
         st.markdown("### Duration per species ")
         fig3 = fig = px.histogram(df_prepro, x="label_duration",color='species')
         st.write(fig3)
-    with fig_col2:
-        st.markdown("### Duration per species probability ")
-        fig4 = fig = px.histogram(df_prepro, x="label_duration",color='species',
-        histnorm='probability')
-        st.write(fig4)
 
-    df_count_date= df_prepro['date'].value_counts().to_frame().reset_index()
-    df_count_date.columns = ['Date','Frequency']
+        st.markdown("### Species frequency per hour")
 
-    fig3 = px.scatter(df_count_date, x='Date', y="Frequency",)
-    st.plotly_chart(fig3)
+        df_hour = df_prepro.groupby(['species',
+                                    'hour'])['label_duration'].sum().to_frame().reset_index()
+        df_polar = pd.DataFrame({'hour':list(range(0,24))*count_species,
+                                'species':sorted(list(df_prepro['species'].unique())*24)})
+        df_polar = pd.merge(df_polar, df_hour, on=['hour','species'],how='left').fillna(0)
+        df_polar['hour'] = df_polar['hour'].astype(str)
+        fig3 = px.bar_polar(df_polar, theta='hour', r='label_duration', color='species',
+                            template="plotly_dark")
+        st.plotly_chart(fig3)
 
-    df_count_date = df_prepro.groupby(['date','species','quality'])['label_duration'].count().to_frame().reset_index()
+        st.markdown("### Duration of annotations")
 
-    fig3 = px.scatter(df_count_date, x='date', y="label_duration", # size='',
-                        color='species', symbol="species")
-    st.plotly_chart(fig3)
+        df_tunnel = df_prepro.groupby(['quality',
+                                        'species'])['label_duration'].sum().reset_index(
+                                        ).sort_values(by=['label_duration'],
+                                                    ascending=False)
+        df_tunnel['label_duration'] = df_tunnel['label_duration'].round()    
 
-    df_count_date = df_prepro.groupby(['date','species','quality'])['label_duration'].sum().to_frame().reset_index()
+        df_tunnel['Percentage'] = 100*df_tunnel['label_duration']/df_tunnel['label_duration'].sum()
+        df_tunnel['Percentage'] = df_tunnel['Percentage'].apply(lambda x: str(round(x,1))+'%')
 
-    fig3 = px.scatter(df_count_date, x='date', y="label_duration", # size='',
-                        color='species', symbol="species")
-    st.plotly_chart(fig3)
+        fig = px.funnel(df_tunnel, x='label_duration', y='species', color='quality',text='Percentage')
+        fig.update_layout(yaxis={'categoryorder':'total descending'})
+        st.plotly_chart(fig)
 
-    fig = px.area(df_count_date, x="date", y="label_duration", color="species", #line_group="country"
-                    )
-    st.plotly_chart(fig)
-
-    search_space = {'date':[60]*len(df_count_date['date'].unique()),
-                    'label_duration':list(df_count_date['date'].unique())}
-
-    df_date = pd.DataFrame(search_space)
-    df_date['species'] = 'Search space'
-
-    st.dataframe(df_date)
-    st.dataframe(df_count_date)
-
-    #df_count_date = pd.merge(df_count_date,df_date, on='date', how='left')
-
-    #fig = px.area(df_count_date, x="date", y="label_duration", color="species", #line_group="country"
-    #                )
-    #st.plotly_chart(fig)
-
-
-    st.markdown("### Species frequency per hour")
-
-    df_hour = df_prepro.groupby(['species',
-                                'hour'])['label_duration'].sum().to_frame().reset_index()
-    df_polar = pd.DataFrame({'hour':list(range(0,24))*count_species,
-                            'species':sorted(list(df_prepro['species'].unique())*24)})
-    df_polar = pd.merge(df_polar, df_hour, on=['hour','species'],how='left').fillna(0)
-    df_polar['hour'] = df_polar['hour'].astype(str)
-    fig3 = px.bar_polar(df_polar, theta='hour', r='label_duration', color='species',
-                        template="plotly_dark")
-    st.plotly_chart(fig3)
-
-    fig3 = px.line_polar(df_polar, theta='hour', r='label_duration', color='species',
-                        template="plotly_dark", line_close=True)
-    fig3.update_traces(fill='toself')        
-    st.plotly_chart(fig3)
-
-    st.markdown("### Duration of annotations")
-
-    df_tunnel = df_prepro.groupby(['quality',
-                                    'species'])['label_duration'].sum().reset_index(
-                                    ).sort_values(by=['label_duration'],
-                                                ascending=False)
-
-    df_tunnel['label_duration'] = df_tunnel['label_duration'].round()                                            
-    
-    fig = px.funnel(df_tunnel, x='label_duration', y='species', color='quality')
-    st.plotly_chart(fig)
-
-    
-
-    df_tunnel = df_prepro.groupby(['quality',
-                                    'species'])['label_duration'].count().reset_index(
-                                    ).sort_values(by=['label_duration'],
-                                                ascending=False)
-    
-    st.markdown("### Count of annotations")
-
-    fig = px.funnel(df_tunnel, x='label_duration', y='species', color='quality')
-    st.plotly_chart(fig)
-
-
-    df_count_label = df_prepro.groupby(['site','label'])['label_duration'].count(
-                                ).reset_index().sort_values(by=['label_duration'], ascending=True)
-    df_count_label.columns = ['Site','Label','Frequency']
-
-    fig = px.bar(df_count_label, x='Frequency', y='Label', color='Site',  
-                orientation='h',text_auto='.2s',)
-    st.plotly_chart(fig)
-
-    fig0 = px.parallel_categories(df_prepro,
+        fig0 = px.parallel_categories(df_prepro,
                                 dimensions=['site','species','quality'], 
                                 color='label_duration_int',
                                 labels={'site':'Site', 'species':'Species', 'quality':'Quality'},
                                 color_continuous_scale=px.colors.diverging.Tealrose,
                                 ) 
                                 # check more colors here https://plotly.com/python/builtin-colorscales/       
-    st.plotly_chart(fig0)
+        st.plotly_chart(fig0)
 
+    with fig_col2:
+        st.markdown("### Duration of quality ")
+        df_count_quality = df_prepro.groupby(['site','quality'])['label_duration'].count(
+                                ).reset_index().sort_values(by=['label_duration'], ascending=True)
+        df_count_quality.columns = ['Site','Quality','Duration']
+        fig2 = px.pie(df_count_quality, values='Duration', names='Quality')
+        st.write(fig2)
+
+        df_count_label = df_prepro.groupby(['site','label'])['label_duration'].count(
+                                ).reset_index().sort_values(by=['label_duration'], ascending=True)
+        df_count_label.columns = ['Site','Label','Frequency']
+
+        fig = px.bar(df_count_label, x='Frequency', y='Label', color='Site',  
+                    orientation='h',text_auto='.2s',)
+        st.plotly_chart(fig)
+
+        df_count_date = df_prepro.groupby(['date','species','quality'])['label_duration'].count().to_frame().reset_index()
+
+        fig3 = px.scatter(df_count_date, x='date', y="label_duration", # size='',
+                            color='species', symbol="species")
+        st.plotly_chart(fig3)
+
+        fig = px.area(df_count_date, x="date", y="label_duration", color="species", #line_group="country"
+                        )
+        st.plotly_chart(fig)
+
+        search_space = {'date':[60]*len(df_count_date['date'].unique()),
+                        'label_duration':list(df_count_date['date'].unique())}
+
+        df_date = pd.DataFrame(search_space)
+        df_date['species'] = 'Search space'
+
+        st.dataframe(df_date)
+        st.dataframe(df_count_date)
 
     st.dataframe(df_prepro)
 
