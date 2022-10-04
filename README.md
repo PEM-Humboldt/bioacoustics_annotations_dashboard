@@ -1,7 +1,6 @@
 # Bioacustics Annotations Dashboard (BADASH 🐸)
 
-BADASH is a streamlit app for visulization of bounding box annotations. (Explain what is annotations in Bioacustics and add protocol) Exploratory Data Analysis
-Fast and way to check the consistency of used codes for annotation
+BADASH is a streamlit app for visulization of bounding box annotations used for training machine learning models in Bioacustics. Badash can be used to visualize annotations and to check the consistency of codes defined in protocol.
 
 ## How to play with BADASH 🐸?
 
