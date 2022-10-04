@@ -32,7 +32,7 @@ def preprocessing(df_annotations):
 
     return df_annotations_prepro
 
-def examine(df_annotations):
+def examine_dictionaries(df_annotations):
 
     """
     Check errors in annotations given dictionary of species and quality
