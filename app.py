@@ -28,7 +28,7 @@ fig_col1, fig_col2 = st.columns(2)
 with fig_col1:
     st.markdown("### Species in Dictionary")
     #fig = px.density_heatmap(data_frame=df, y = 'age_new', x = 'marital')
-    df_species = pd.read_csv('species_code.csv',sep=';')
+    df_species = pd.read_csv('species_code.csv',sep=',')
     df_species = df_species[['Specie','Code']]
     st.dataframe(df_species)
 with fig_col2:
