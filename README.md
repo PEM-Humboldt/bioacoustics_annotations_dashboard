@@ -22,9 +22,9 @@ git clone https://github.com/jscanass/bioacoustics_annotations_dashboard.git
 
 ```shell
 cd bioacoustics_annotations_dashboard
-conda create --name badash_env
+conda create --name badash_env python=3.10
 conda activate badash_env
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 3. Run streamlit app:
