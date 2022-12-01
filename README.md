@@ -4,7 +4,7 @@ BADASH is a streamlit app for visulization of bounding box annotations used for 
 
 ## How to play with BADASH 🐸?
 
-1. Open this [link](https://jscanass-bioacoustics-annotations-dashboard-app-c87m5t.streamlitapp.com) to use BADASH 🐸. 
+1. Open this [link](https://jscanass-bioacoustics-annotations-dashboard-app-fs3l8h.streamlit.app/) to use BADASH 🐸. 
 
 2. Upload a set of annotations. You can use [these](https://github.com/juansulloa/soundclim_annotations/tree/master/bounding_boxes/INCT41) annotations to play with BADASH 🐸. 
 
