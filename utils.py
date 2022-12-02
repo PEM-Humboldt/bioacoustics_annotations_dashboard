@@ -46,7 +46,7 @@ def examine_dictionaries(df_annotations):
     df_annotations_prepro : pandas.core.frame.DataFrame
         Dataframe preprocessed, ready for analyzing
     """
-    df_species = pd.read_csv('species_code.csv',sep=';')
+    df_species = pd.read_csv('species_code.csv',sep=',')
     df_quality = pd.read_csv('quality_code.csv',sep=';')
     
     list_of_species = list(df_species['Code'].unique())
