@@ -42,9 +42,15 @@ Follow the same format for annotations in your project as [examples](https://git
 
 Modify the species and quality dictionary following the same structure of the Species_code_Annotations.xlsx file. 
 
-## Authors and contributors
-
-* Juan Sebastián Cañas - [jscanass](https://github.com/jscanass)
-
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+The authors acknowledge financial support from the intergovernmental Group on Earth Observations (GEO) and Microsoft, under the GEO-Microsoft Planetary Computer Programme (October 2021).
+
+## Contact
+
+- Juan Sebastián Ulloa (julloa@humboldt.org.co, [juansulloa](https://github.com/juansulloa))
+- Juan Sebastián Cañas (jcanas@humboldt.org.co, [jscanass](https://github.com/jscanass))
+
+
